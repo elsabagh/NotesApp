@@ -5,5 +5,6 @@ import com.example.notesapp.util.UiState
 
 interface NoteRepository {
 
-    fun getNotes(): UiState<List<Note>>
+    fun getNotes(result: (UiState<List<Note>>) -> Unit)
+    fun addNote(note: Note, result: (UiState<String>) -> Unit)
 }

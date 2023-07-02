@@ -19,11 +19,22 @@ class NoteViewModel @Inject constructor(
     val note: LiveData<UiState<List<Note>>>
         get() = _notes
 
+    private val _addNotes = MutableLiveData<UiState<String>>()
+    val addNote: LiveData<UiState<String>>
+        get() = _addNotes
+
     fun getNotes() {
         _notes.value = UiState.Loading
-        android.os.Handler(Looper.getMainLooper()).postDelayed({
-            _notes.value = repository.getNotes()
-        }, 2000)
+        repository.getNotes {
+            _notes.value = it
+        }
+    }
+
+    fun addNotes(note: Note) {
+        _addNotes.value = UiState.Loading
+        repository.addNote(note) {
+            _addNotes.value = it
+        }
     }
 
 }
