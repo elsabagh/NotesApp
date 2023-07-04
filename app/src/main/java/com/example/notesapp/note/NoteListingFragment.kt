@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notesapp.R
+import com.example.notesapp.data.model.Note
 import com.example.notesapp.databinding.FragmentNoteListingBinding
 import com.example.notesapp.util.UiState
 import com.example.notesapp.util.hide
@@ -22,6 +23,7 @@ class NoteListingFragment : Fragment() {
     private val TAG: String = "NoteListingFragment"
     lateinit var binding: FragmentNoteListingBinding
     private val viewModel: NoteViewModel by viewModels()
+    private var deletePosition: Int = -1
     val adapter by lazy {
         NoteListingAdapter(
             onItemClicked = { pos, item ->
@@ -42,7 +44,8 @@ class NoteListingFragment : Fragment() {
                     })
             },
             onDeleteClicked = { pos, item ->
-
+                deletePosition = pos
+                viewModel.deleteNotes(item)
             }
         )
     }
@@ -59,6 +62,7 @@ class NoteListingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.recyclerView.adapter = adapter
+        binding.recyclerView.itemAnimator = null
         binding.btnCreate.setOnClickListener {
             findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment,
                 Bundle().apply {
@@ -80,6 +84,27 @@ class NoteListingFragment : Fragment() {
                 is UiState.Success -> {
                     binding.progressBar.hide()
                     adapter.updateList(state.data.toMutableList())
+                }
+            }
+
+        }
+
+        viewModel.deleteNotes.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is UiState.Loading -> {
+                    binding.progressBar.show()
+                }
+
+                is UiState.Failure -> {
+                    binding.progressBar.hide()
+                    toast(state.error)
+                }
+
+                is UiState.Success -> {
+                    binding.progressBar.hide()
+                    toast(state.data)
+                    adapter.removeItem(deletePosition)
+
                 }
             }
 

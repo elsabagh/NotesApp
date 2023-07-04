@@ -6,16 +6,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.notesapp.data.model.Note
 import com.example.notesapp.databinding.ItemNoteBinding
 
-class NoteListingAdapter (
+class NoteListingAdapter(
     val onItemClicked: (Int, Note) -> Unit,
     val onEditClicked: (Int, Note) -> Unit,
-    val onDeleteClicked: (Int,Note) -> Unit
+    val onDeleteClicked: (Int, Note) -> Unit
 ) : RecyclerView.Adapter<NoteListingAdapter.MyViewHolder>() {
 
     private var list: MutableList<Note> = arrayListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val itemView = ItemNoteBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        val itemView = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MyViewHolder(itemView)
     }
 
@@ -24,12 +24,12 @@ class NoteListingAdapter (
         holder.bind(item)
     }
 
-    fun updateList(list: MutableList<Note>){
+    fun updateList(list: MutableList<Note>) {
         this.list = list
         notifyDataSetChanged()
     }
 
-    fun removeItem(position: Int){
+    fun removeItem(position: Int) {
         list.removeAt(position)
         notifyItemChanged(position)
     }
@@ -39,12 +39,12 @@ class NoteListingAdapter (
     }
 
     inner class MyViewHolder(val binding: ItemNoteBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: Note){
+        fun bind(item: Note) {
             binding.noteIdValue.setText(item.id)
             binding.msg.setText(item.text)
-            binding.edit.setOnClickListener { onEditClicked.invoke(adapterPosition,item) }
-            binding.delete.setOnClickListener { onDeleteClicked.invoke(adapterPosition,item) }
-            binding.itemLayout.setOnClickListener { onItemClicked.invoke(adapterPosition,item) }
+            binding.edit.setOnClickListener { onEditClicked.invoke(adapterPosition, item) }
+            binding.delete.setOnClickListener { onDeleteClicked.invoke(adapterPosition, item) }
+            binding.itemLayout.setOnClickListener { onItemClicked.invoke(adapterPosition, item) }
         }
     }
 }
