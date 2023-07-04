@@ -1,7 +1,10 @@
 package com.example.notesapp.di
 
+import com.example.notesapp.data.repository.AuthRepository
+import com.example.notesapp.data.repository.AuthRepositoryImp
 import com.example.notesapp.data.repository.NoteRepository
 import com.example.notesapp.data.repository.NoteRepositoryImp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -19,5 +22,14 @@ object RepositoryModule {
         database: FirebaseFirestore
     ): NoteRepository {
         return NoteRepositoryImp(database)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(
+        auth: FirebaseAuth,
+        database: FirebaseFirestore
+    ): AuthRepository {
+        return AuthRepositoryImp(auth, database)
     }
 }

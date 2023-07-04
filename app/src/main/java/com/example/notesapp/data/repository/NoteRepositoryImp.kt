@@ -1,10 +1,11 @@
 package com.example.notesapp.data.repository
 
-import android.util.Log
 import com.example.notesapp.data.model.Note
+import com.example.notesapp.util.FireStoreDocumentField
 import com.example.notesapp.util.FireStoreTAbles
 import com.example.notesapp.util.UiState
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import java.util.*
 
 class NoteRepositoryImp(
@@ -13,6 +14,7 @@ class NoteRepositoryImp(
 
     override fun getNotes(result: (UiState<List<Note>>) -> Unit) {
         database.collection(FireStoreTAbles.Note)
+            .orderBy(FireStoreDocumentField.DATE, Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener {
                 val notes = arrayListOf<Note>()
@@ -32,14 +34,14 @@ class NoteRepositoryImp(
             }
     }
 
-    override fun addNote(note: Note, result: (UiState<String>) -> Unit) {
+    override fun addNote(note: Note, result: (UiState<Pair<Note, String>>) -> Unit) {
         val document = database.collection(FireStoreTAbles.Note).document()
         note.id = document.id
 
         document.set(note)
             .addOnSuccessListener {
                 result.invoke(
-                    UiState.Success("Note has been created successfully")
+                    UiState.Success(Pair(note,"Note has been created successfully"))
                 )
             }
             .addOnFailureListener {
@@ -65,8 +67,8 @@ class NoteRepositoryImp(
     }
 
     override fun deleteNote(note: Note, result: (UiState<String>) -> Unit) {
-        val document = database.collection(FireStoreTAbles.Note).document(note.id)
-        document.delete()
+        database.collection(FireStoreTAbles.Note).document(note.id)
+            .delete()
             .addOnSuccessListener {
                 result.invoke(
                     UiState.Success("Note has been delete successfully")
