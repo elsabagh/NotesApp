@@ -1,6 +1,5 @@
 package com.example.notesapp.ui.auth
 
-import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,6 +21,10 @@ class AuthViewModel @Inject constructor(
     private val _login = MutableLiveData<UiState<String>>()
     val login: LiveData<UiState<String>>
         get() = _login
+
+    private val _forgotPassword = MutableLiveData<UiState<String>>()
+    val forgotPassword: LiveData<UiState<String>>
+        get() = _forgotPassword
 
     fun register(
         email: String,
@@ -48,6 +51,17 @@ class AuthViewModel @Inject constructor(
             password = password
         ) {
             _login.value = it
+        }
+    }
+
+    fun forgotPassword(
+        email: String
+    ) {
+        _forgotPassword.value = UiState.Loading
+        repository.forgotPassword(
+            email = email
+        ) {
+            _forgotPassword.value = it
         }
     }
 }

@@ -22,9 +22,7 @@ import java.util.*
 @AndroidEntryPoint
 class NoteDetailFragment : Fragment() {
 
-
-    val TAG: String = "NoteDetailFragment"
-    lateinit var binding: FragmentNoteDetailBinding
+    private lateinit var binding: FragmentNoteDetailBinding
     private val viewModel: NoteViewModel by viewModels()
     var objNote: Note? = null
     var tagsList: MutableList<String> = arrayListOf()
@@ -33,11 +31,11 @@ class NoteDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if (this::binding.isInitialized) {
-            return binding.root
+        return if (this::binding.isInitialized) {
+            binding.root
         } else {
             binding = FragmentNoteDetailBinding.inflate(layoutInflater)
-            return binding.root
+            binding.root
         }
     }
 
@@ -255,5 +253,9 @@ class NoteDetailFragment : Fragment() {
             toast(getString(R.string.error_description))
         }
         return isValid
+    }
+
+    companion object{
+        const val TAG: String = "NoteDetailFragment"
     }
 }

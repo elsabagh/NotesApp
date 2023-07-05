@@ -23,7 +23,7 @@ interface AuthRepository {
     )
 
     fun forgotPassword(
-        user: User,
+        email: String,
         result: (UiState<String>) -> Unit
     )
 }

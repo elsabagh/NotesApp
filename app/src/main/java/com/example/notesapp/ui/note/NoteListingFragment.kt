@@ -20,10 +20,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NoteListingFragment : Fragment() {
 
-    private val TAG: String = "NoteListingFragment"
-    lateinit var binding: FragmentNoteListingBinding
+    private lateinit var binding: FragmentNoteListingBinding
     private val viewModel: NoteViewModel by viewModels()
-    val adapter by lazy {
+    private val adapter by lazy {
         NoteListingAdapter(
             onItemClicked = { pos, item ->
                 findNavController().navigate(
@@ -41,11 +40,11 @@ class NoteListingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if (this::binding.isInitialized) {
-            return binding.root
+        return if (this::binding.isInitialized) {
+            binding.root
         } else {
             binding = FragmentNoteListingBinding.inflate(layoutInflater)
-            return binding.root
+            binding.root
         }
     }
 
@@ -77,7 +76,9 @@ class NoteListingFragment : Fragment() {
                     adapter.updateList(state.data.toMutableList())
                 }
             }
-
         }
+    }
+    companion object {
+        const val TAG: String = "NoteListingFragment"
     }
 }

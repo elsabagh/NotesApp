@@ -1,15 +1,14 @@
 package com.example.notesapp.ui.auth
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.notesapp.R
 import com.example.notesapp.databinding.FragmentLoginBinding
-import com.example.notesapp.databinding.FragmentRegisterBinding
 import com.example.notesapp.util.UiState
 import com.example.notesapp.util.hide
 import com.example.notesapp.util.isValidEmail
@@ -20,9 +19,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
-    val TAG: String = "RegisterFragment"
-    lateinit var binding: FragmentLoginBinding
-    val viewModel: AuthViewModel by viewModels()
+    private lateinit var binding: FragmentLoginBinding
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,9 +47,12 @@ class LoginFragment : Fragment() {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
         }
 
+        binding.forgotPassLabel.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
+        }
     }
 
-    fun observer() {
+    private fun observer() {
         viewModel.login.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is UiState.Loading -> {
@@ -75,7 +76,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    fun validation(): Boolean {
+    private fun validation(): Boolean {
         var isValid = true
 
         if (binding.emailEt.text.isNullOrEmpty()) {
@@ -99,4 +100,7 @@ class LoginFragment : Fragment() {
         return isValid
     }
 
+    companion object {
+        const val TAG: String = "RegisterFragment"
+    }
 }
