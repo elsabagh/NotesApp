@@ -1,4 +1,4 @@
-package com.example.notesapp.note
+package com.example.notesapp.ui.note
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.notesapp.R
 import com.example.notesapp.databinding.FragmentNoteListingBinding
-import com.example.notesapp.ui.note.NoteViewModel
 import com.example.notesapp.util.UiState
 import com.example.notesapp.util.hide
 import com.example.notesapp.util.show

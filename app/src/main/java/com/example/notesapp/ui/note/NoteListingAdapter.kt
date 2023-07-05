@@ -1,4 +1,4 @@
-package com.example.notesapp.note
+package com.example.notesapp.ui.note
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

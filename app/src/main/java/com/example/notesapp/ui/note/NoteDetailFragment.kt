@@ -1,4 +1,4 @@
-package com.example.notesapp.note
+package com.example.notesapp.ui.note
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.notesapp.R
 import com.example.notesapp.data.model.Note
 import com.example.notesapp.databinding.FragmentNoteDetailBinding
-import com.example.notesapp.ui.note.NoteViewModel
 import com.example.notesapp.util.*
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint

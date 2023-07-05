@@ -3,20 +3,44 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_nav"
-    app:startDestination="@id/noteListingFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/noteDetailFragment"
-        android:name="com.example.notesapp.note.NoteDetailFragment"
+        android:name="com.example.notesapp.ui.note.NoteDetailFragment"
         android:label="fragment_note_detail"
         tools:layout="@layout/fragment_note_detail" />
+
     <fragment
         android:id="@+id/noteListingFragment"
-        android:name="com.example.notesapp.note.NoteListingFragment"
+        android:name="com.example.notesapp.ui.note.NoteListingFragment"
         android:label="fragment_note_listing"
-        tools:layout="@layout/fragment_note_listing" >
+        tools:layout="@layout/fragment_note_listing">
         <action
             android:id="@+id/action_noteListingFragment_to_noteDetailFragment"
             app:destination="@id/noteDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.notesapp.ui.auth.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_registerFragment_to_noteListingFragment"
+            app:destination="@id/noteListingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.notesapp.ui.auth.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_noteListingFragment"
+            app:destination="@id/noteListingFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
     </fragment>
 </navigation>
