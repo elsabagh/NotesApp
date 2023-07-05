@@ -100,6 +100,15 @@ class LoginFragment : Fragment() {
         return isValid
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getSession { user ->
+            if (user != null) {
+                findNavController().navigate(R.id.action_loginFragment_to_noteListingFragment)
+            }
+        }
+    }
+
     companion object {
         const val TAG: String = "RegisterFragment"
     }

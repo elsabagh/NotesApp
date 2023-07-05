@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.notesapp.R
 import com.example.notesapp.databinding.FragmentNoteListingBinding
+import com.example.notesapp.ui.auth.AuthViewModel
 import com.example.notesapp.util.UiState
 import com.example.notesapp.util.hide
 import com.example.notesapp.util.show
@@ -22,6 +23,8 @@ class NoteListingFragment : Fragment() {
 
     private lateinit var binding: FragmentNoteListingBinding
     private val viewModel: NoteViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
+
     private val adapter by lazy {
         NoteListingAdapter(
             onItemClicked = { pos, item ->
@@ -59,7 +62,19 @@ class NoteListingFragment : Fragment() {
         binding.btnCreate.setOnClickListener {
             findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment)
         }
-        viewModel.getNotes()
+
+        binding.btnLogout.setOnClickListener {
+            authViewModel.logout {
+                findNavController().navigate(R.id.action_noteListingFragment_to_loginFragment)
+            }
+        }
+        authViewModel.getSession {
+            viewModel.getNotes(it)
+        }
+        observer()
+    }
+
+    private fun observer() {
         viewModel.note.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is UiState.Loading -> {
@@ -78,6 +93,7 @@ class NoteListingFragment : Fragment() {
             }
         }
     }
+
     companion object {
         const val TAG: String = "NoteListingFragment"
     }
