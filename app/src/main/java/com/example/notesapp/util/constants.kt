@@ -6,12 +6,18 @@ object FireStoreTAbles {
 }
 
 object FireStoreDocumentField {
-    val DATE = "date"
-    val USER_ID = "user_id"
+    const val DATE = "date"
+    const val USER_ID = "user_id"
+
+}
+
+object FirebaseStorageConstants {
+    const val DIRECTORY = "app"
+    const val NOTE_IMAGES = "note"
 
 }
 
 object SharedPrefConstants {
-    val LOCAL_SHARED_PREF = "local_shared_pref"
-    val USER_SESSION = "user_session"
+    const val LOCAL_SHARED_PREF = "local_shared_pref"
+    const val USER_SESSION = "user_session"
 }

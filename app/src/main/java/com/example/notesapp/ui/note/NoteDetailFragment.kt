@@ -1,20 +1,29 @@
 package com.example.notesapp.ui.note
 
+import android.app.Activity
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notesapp.R
 import com.example.notesapp.data.model.Note
 import com.example.notesapp.databinding.FragmentNoteDetailBinding
 import com.example.notesapp.ui.auth.AuthViewModel
 import com.example.notesapp.util.*
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,9 +34,43 @@ class NoteDetailFragment : Fragment() {
 
     private lateinit var binding: FragmentNoteDetailBinding
     private val viewModel: NoteViewModel by viewModels()
-    val authViewModel: AuthViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
     var objNote: Note? = null
     var tagsList: MutableList<String> = arrayListOf()
+    var imageUris: MutableList<Uri> = arrayListOf()
+    private val adapter by lazy {
+        ImageListingAdapter(
+            onCancelClicked = { pos, item ->
+                onRemoveImage(pos, item)
+            }
+        )
+    }
+
+    private val startForProfileImageResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            val resultCode = result.resultCode
+            val data = result.data
+            when (resultCode) {
+                Activity.RESULT_OK -> {
+                    val fileUri = data?.data!!
+                    imageUris.add(fileUri)
+                    adapter.updateList(imageUris)
+                    binding.btnProgressAr.hide()
+                    toggleDoneButtonVisibility()
+
+                }
+
+                ImagePicker.RESULT_ERROR -> {
+                    binding.btnProgressAr.hide()
+                    toast(ImagePicker.getError(data))
+                }
+
+                else -> {
+                    binding.btnProgressAr.hide()
+                    Log.e(TAG, "Task Cancelled")
+                }
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,13 +104,15 @@ class NoteDetailFragment : Fragment() {
                 }
 
                 is UiState.Success -> {
-                    binding.btnProgressAr.hide()
-                    isMakeEnableUI(false)
-                    toast(state.data.second)
-                    objNote = state.data.first
-                    binding.done.hide()
-                    binding.delete.show()
-                    binding.edit.show()
+                    binding.apply {
+                        btnProgressAr.hide()
+                        done.hide()
+                        delete.show()
+                        edit.show()
+                        isMakeEnableUI(false)
+                        toast(state.data.second)
+                        objNote = state.data.first
+                    }
                 }
             }
         }
@@ -83,11 +128,14 @@ class NoteDetailFragment : Fragment() {
                 }
 
                 is UiState.Success -> {
-                    binding.btnProgressAr.hide()
-                    toast(state.data)
-                    binding.done.hide()
-                    binding.edit.show()
-                    isMakeEnableUI(false)
+                    binding.apply {
+                        btnProgressAr.hide()
+                        toast(state.data)
+                        done.hide()
+                        edit.show()
+                        isMakeEnableUI(false)
+                    }
+
                 }
             }
         }
@@ -110,6 +158,27 @@ class NoteDetailFragment : Fragment() {
                 }
             }
         }
+
+        viewModel.deleteImage.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is UiState.Loading -> {
+                    binding.btnProgressAr.show()
+                }
+                is UiState.Failure -> {
+                    binding.btnProgressAr.hide()
+                    toast(state.error)
+                }
+                is UiState.Success -> {
+                    binding.apply {
+                        btnProgressAr.hide()
+                        toast(state.data)
+                        done.show()
+                        edit.hide()
+                        isMakeEnableUI(false)
+                    }
+                }
+            }
+        }
     }
 
 
@@ -118,62 +187,82 @@ class NoteDetailFragment : Fragment() {
         objNote = arguments?.getParcelable("note")
         binding.tags.layoutParams.height = 40.dpToPx
         objNote?.let { note ->
-            binding.title.setText(note.title)
-            binding.date.setText(sdf.format(note.date))
+            binding.apply {
+                title.setText(note.title)
+                date.setText(sdf.format(note.date))
+                description.setText(note.description)
+                done.hide()
+                edit.show()
+                delete.show()
+            }
             tagsList = note.tags
             addTags(tagsList)
-            binding.description.setText(note.description)
-            binding.done.hide()
-            binding.edit.show()
-            binding.delete.show()
             isMakeEnableUI(false)
+
         } ?: run {
-            binding.title.setText("")
-            binding.date.setText(sdf.format(Date()))
-            binding.description.setText("")
-            binding.done.hide()
-            binding.edit.hide()
-            binding.delete.hide()
+            binding.apply {
+                title.setText("")
+                date.setText(sdf.format(Date()))
+                description.setText("")
+                done.hide()
+                edit.hide()
+                delete.hide()
+            }
             isMakeEnableUI(true)
         }
-        binding.back.setOnClickListener {
-            findNavController().navigateUp()
+        binding.images.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.images.adapter = adapter
+        binding.images.itemAnimator = null
+        imageUris = objNote?.images?.map { it.toUri() }?.toMutableList() ?: arrayListOf()
+        adapter.updateList(imageUris)
+        binding.addImageLl.setOnClickListener {
+            binding.btnProgressAr.show()
+            ImagePicker.with(this)
+                //.crop()
+                .compress(1024)
+                .galleryOnly()
+                .createIntent { intent ->
+                    startForProfileImageResult.launch(intent)
+                }
         }
-        binding.title.setOnClickListener {
-            isMakeEnableUI(true)
-        }
-        binding.description.setOnClickListener {
-            isMakeEnableUI(true)
-        }
-        binding.delete.setOnClickListener {
-            objNote?.let { viewModel.deleteNote(it) }
-        }
-        binding.addTagLl.setOnClickListener {
-            showAddTagDialog()
-        }
-        binding.edit.setOnClickListener {
-            isMakeEnableUI(true)
-            binding.done.show()
-            binding.edit.hide()
-            binding.title.requestFocus()
-        }
-        binding.done.setOnClickListener {
-            if (validation()) {
-                if (objNote == null) {
-                    viewModel.addNote(getNote())
-                } else {
-                    viewModel.updateNote(getNote())
+        binding.apply {
+            back.setOnClickListener {
+                findNavController().navigateUp()
+            }
+            title.setOnClickListener {
+                isMakeEnableUI(true)
+            }
+            description.setOnClickListener {
+                isMakeEnableUI(true)
+            }
+            delete.setOnClickListener {
+                objNote?.let { viewModel.deleteNote(it) }
+            }
+            addTagLl.setOnClickListener {
+                showAddTagDialog()
+            }
+            edit.setOnClickListener {
+                isMakeEnableUI(true)
+                done.show()
+                edit.hide()
+                title.requestFocus()
+            }
+            done.setOnClickListener {
+                if (validation()) {
+                    onDonePressed()
                 }
             }
+            title.doAfterTextChanged {
+                done.show()
+                edit.hide()
+            }
+            description.doAfterTextChanged {
+                done.show()
+                edit.hide()
+            }
         }
-        binding.title.doAfterTextChanged {
-            binding.done.show()
-            binding.edit.hide()
-        }
-        binding.description.doAfterTextChanged {
-            binding.done.show()
-            binding.edit.hide()
-        }
+
     }
 
     private fun showAddTagDialog() {
@@ -230,17 +319,100 @@ class NoteDetailFragment : Fragment() {
             title = binding.title.text.toString(),
             description = binding.description.text.toString(),
             tags = tagsList,
-            date = Date()
+            date = Date(),
+            images = getImageUrls()
         ).apply { authViewModel.getSession { this.user_id = it?.id ?: "" } }
     }
 
+    private fun getImageUrls(): List<String> {
+        return if (imageUris.isNotEmpty()) {
+            imageUris.map {
+                it.toString()
+            }
+        } else {
+            objNote?.images ?: arrayListOf()
+        }
+    }
 
     private fun isMakeEnableUI(isDisable: Boolean = false) {
-        binding.title.isEnabled = isDisable
-        binding.date.isEnabled = isDisable
-        binding.tags.isEnabled = isDisable
-        binding.addTagLl.isEnabled = isDisable
-        binding.description.isEnabled = isDisable
+        binding.apply {
+            title.isEnabled = isDisable
+            date.isEnabled = isDisable
+            tags.isEnabled = isDisable
+            addTagLl.isEnabled = isDisable
+            description.isEnabled = isDisable
+        }
+
+    }
+
+    private fun toggleDoneButtonVisibility() {
+        if (objNote != null) {
+            binding.edit.performClick()
+        }
+    }
+
+    private fun onRemoveImage(pos: Int, item: Uri) {
+        adapter.removeItem(pos)
+        imageUris.remove(item)
+        objNote?.let { note ->
+            val updatedImages = note.images.toMutableList()
+            updatedImages.remove(item.toString())
+            note.images = updatedImages
+        }
+        toggleDoneButtonVisibility()
+
+        val updatedNoteImages = imageUris.map { it.toString() }
+        objNote?.images = updatedNoteImages
+
+        // Update the image URLs for the remaining images
+        adapter.updateList(imageUris)
+    }
+
+    private fun onDonePressed() {
+        if (imageUris.isNotEmpty()) {
+            viewModel.onUploadFile(imageUris) { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        binding.btnProgressAr.show()
+                    }
+
+                    is UiState.Failure -> {
+                        binding.btnProgressAr.hide()
+                        toast(state.error)
+                    }
+
+                    is UiState.Success -> {
+                        binding.btnProgressAr.hide()
+                        if (objNote == null) {
+                            viewModel.addNote(getNote())
+                        } else {
+                            viewModel.updateNote(getNote())
+                        }
+                        // Delete the images from Firebase Storage
+                        state.data.forEach { imageUrl ->
+                            // Delete the image using the imageUrl
+                            // Example code to delete the image:
+                            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(
+                                imageUrl.toString()
+                            )
+                            storageRef.delete()
+                                .addOnSuccessListener {
+                                    // Image deleted successfully
+                                }
+                                .addOnFailureListener { e ->
+                                    // Error deleting image
+                                }
+                        }
+                    }
+                }
+            }
+        } else {
+            if (objNote == null) {
+                viewModel.addNote(getNote())
+            } else {
+                viewModel.updateNote(getNote())
+            }
+        }
     }
 
 

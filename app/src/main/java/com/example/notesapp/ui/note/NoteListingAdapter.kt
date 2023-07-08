@@ -40,7 +40,7 @@ class NoteListingAdapter(
         return list.size
     }
 
-    inner class MyViewHolder(val binding: ItemNoteBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class MyViewHolder(private val binding: ItemNoteBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Note) {
             binding.title.setText(item.title)
             binding.date.setText(sdf.format(item.date))

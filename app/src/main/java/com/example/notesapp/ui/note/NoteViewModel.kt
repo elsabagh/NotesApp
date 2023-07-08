@@ -1,13 +1,17 @@
 package com.example.notesapp.ui.note
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.notesapp.data.model.Note
 import com.example.notesapp.data.model.User
 import com.example.notesapp.data.repository.NoteRepository
 import com.example.notesapp.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +35,11 @@ class NoteViewModel @Inject constructor(
     val deleteNote: LiveData<UiState<String>>
         get() = _deleteNote
 
+    private val _deleteImage = MutableLiveData<UiState<String>>()
+    val deleteImage: LiveData<UiState<String>>
+        get() = _deleteImage
+
+
     fun getNotes(user: User?) {
         _notes.value = UiState.Loading
         repository.getNotes(user) { _notes.value = it }
@@ -49,5 +58,19 @@ class NoteViewModel @Inject constructor(
     fun deleteNote(note: Note) {
         _deleteNote.value = UiState.Loading
         repository.deleteNote(note) { _deleteNote.value = it }
+    }
+
+    fun onUploadFile(fileUris: List<Uri>, onResult: (UiState<List<Uri>>) -> Unit){
+        onResult.invoke(UiState.Loading)
+        viewModelScope.launch {
+            repository.uploadFile(fileUris,onResult)
+        }
+    }
+
+    fun deleteImage(note: Note, imageUrl: String) {
+        _deleteImage.value = UiState.Loading
+        repository.deleteImage(note, imageUrl) { result ->
+            _deleteImage.value = result
+        }
     }
 }
