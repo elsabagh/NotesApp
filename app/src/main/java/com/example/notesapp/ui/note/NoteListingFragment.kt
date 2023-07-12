@@ -18,12 +18,15 @@ import com.example.notesapp.util.show
 import com.example.notesapp.util.toast
 import dagger.hilt.android.AndroidEntryPoint
 
+private const val ARG_PARAM1 = "param1"
+
 @AndroidEntryPoint
 class NoteListingFragment : Fragment() {
 
     private lateinit var binding: FragmentNoteListingBinding
     private val viewModel: NoteViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
+    var param1: String? = null
 
     private val adapter by lazy {
         NoteListingAdapter(
@@ -37,6 +40,13 @@ class NoteListingFragment : Fragment() {
 
             }
         )
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            param1 = it.getString(ARG_PARAM1)
+        }
     }
 
     override fun onCreateView(
@@ -63,11 +73,6 @@ class NoteListingFragment : Fragment() {
             findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment)
         }
 
-        binding.btnLogout.setOnClickListener {
-            authViewModel.logout {
-                findNavController().navigate(R.id.action_noteListingFragment_to_loginFragment)
-            }
-        }
         authViewModel.getSession {
             viewModel.getNotes(it)
         }
@@ -96,5 +101,12 @@ class NoteListingFragment : Fragment() {
 
     companion object {
         const val TAG: String = "NoteListingFragment"
+        @JvmStatic
+        fun newInstance(param1: String) =
+            NoteListingFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, param1)
+                }
+            }
     }
 }

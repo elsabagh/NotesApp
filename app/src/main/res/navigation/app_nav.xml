@@ -6,34 +6,13 @@
     app:startDestination="@id/loginFragment">
 
     <fragment
-        android:id="@+id/noteDetailFragment"
-        android:name="com.example.notesapp.ui.note.NoteDetailFragment"
-        android:label="fragment_note_detail"
-        tools:layout="@layout/fragment_note_detail" />
-
-    <fragment
-        android:id="@+id/noteListingFragment"
-        android:name="com.example.notesapp.ui.note.NoteListingFragment"
-        android:label="fragment_note_listing"
-        tools:layout="@layout/fragment_note_listing">
-        <action
-            android:id="@+id/action_noteListingFragment_to_noteDetailFragment"
-            app:destination="@id/noteDetailFragment" />
-        <action
-            android:id="@+id/action_noteListingFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.notesapp.ui.auth.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register">
         <action
-            android:id="@+id/action_registerFragment_to_noteListingFragment"
-            app:destination="@id/noteListingFragment" />
+            android:id="@+id/action_registerFragment_to_home_nav"
+            app:destination="@id/home_nav" />
     </fragment>
 
     <fragment
@@ -42,8 +21,8 @@
         android:label="fragment_login"
         tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/action_loginFragment_to_noteListingFragment"
-            app:destination="@id/noteListingFragment" />
+            android:id="@+id/action_loginFragment_to_home_nav"
+            app:destination="@id/home_nav" />
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
@@ -56,4 +35,7 @@
         android:name="com.example.notesapp.ui.auth.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
         tools:layout="@layout/fragment_forgot_password" />
+
+    <include app:graph="@navigation/home_nav" />
+
 </navigation>

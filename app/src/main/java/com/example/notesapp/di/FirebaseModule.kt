@@ -2,6 +2,7 @@ package com.example.notesapp.di
 
 import com.example.notesapp.util.FirebaseStorageConstants
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -25,6 +26,12 @@ object FirebaseModule {
     @Singleton
     fun provideFirebaseAuthInstance(): FirebaseAuth {
         return FirebaseAuth.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseDatabaseInstance(): FirebaseDatabase{
+        return FirebaseDatabase.getInstance()
     }
 
     @Provides

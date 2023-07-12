@@ -6,12 +6,14 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.*
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.notesapp.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.tabs.TabLayout
 
 
 fun View.hide() {
@@ -39,15 +41,12 @@ fun ChipGroup.addChip(
     isTouchTargeSize: Boolean = false,
     closeIconListener: View.OnClickListener? = null
 ) {
-    val chip: Chip = LayoutInflater.from(context).inflate(R.layout.item_chip, null, false) as Chip
-    chip.text = if (text.length > 9) text.substring(0, 9) + "..." else text
+    val chip: Chip = LayoutInflater.from(context).inflate(R.layout.item_chip,null,false) as Chip
+    chip.text = if (text.length > 9) text.substring(0,9) + "..." else text
     chip.isClickable = false
     chip.setEnsureMinTouchTargetSize(isTouchTargeSize)
-    if (closeIconListener != null) {
-        chip.closeIcon = ContextCompat.getDrawable(
-            context,
-            com.google.android.material.R.drawable.ic_mtrl_chip_close_circle
-        )
+    if (closeIconListener != null){
+        chip.closeIcon = ContextCompat.getDrawable(context, com.google.android.material.R.drawable.ic_mtrl_chip_close_circle)
         chip.isCloseIconVisible = true
         chip.setOnCloseIconClickListener(closeIconListener)
     }
@@ -76,3 +75,35 @@ val Int.pxToDp: Int
 
 fun String.isValidEmail() =
     isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+
+
+inline fun TabLayout.onTabSelectionListener(
+    crossinline onTabSelected: (TabLayout.Tab?) -> Unit = {},
+    crossinline onTabUnselected: (TabLayout.Tab?) -> Unit? = {},
+) {
+    addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        override fun onTabSelected(tab: TabLayout.Tab?) {
+            tab?.onSelection(true)
+            onTabSelected.invoke(tab)
+        }
+
+        override fun onTabUnselected(tab: TabLayout.Tab?) {
+            tab?.onSelection(false)
+            onTabUnselected.invoke(tab)
+        }
+
+        override fun onTabReselected(tab: TabLayout.Tab?) {}
+    })
+}
+
+fun TabLayout.Tab.onSelection(isSelected: Boolean = true) {
+    val textViewTitle: TextView? = customView?.findViewById<TextView>(R.id.tabTitle)
+    textViewTitle?.let { textView ->
+        textView.setTextColor(
+            ContextCompat.getColor(
+                textView.context,
+                if (isSelected) R.color.tab_selected else R.color.tab_unselected
+            )
+        )
+    }
+}

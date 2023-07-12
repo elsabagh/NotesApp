@@ -17,7 +17,16 @@ object FirebaseStorageConstants {
 
 }
 
+object FireDatabase {
+    const val TASK = "task"
+}
+
 object SharedPrefConstants {
     const val LOCAL_SHARED_PREF = "local_shared_pref"
     const val USER_SESSION = "user_session"
+}
+
+enum class HomeTabs(val index: Int, val kay: String) {
+    Notes(0, "notes"),
+    Tasks(1, "tasks")
 }
