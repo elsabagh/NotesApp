@@ -9,7 +9,7 @@ import java.util.Date
 data class Task(
     var id: String = "",
     var user_id: String = "",
-    val description: String = "",
+    var description: String = "",
     @ServerTimestamp
     val date: String = "",
 ) : Parcelable

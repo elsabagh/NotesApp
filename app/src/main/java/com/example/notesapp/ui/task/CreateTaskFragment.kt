@@ -24,13 +24,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 @AndroidEntryPoint
-class CreateTaskFragment : BottomSheetDialogFragment() {
+class CreateTaskFragment(private val task: Task? = null) : BottomSheetDialogFragment() {
 
     val TAG: String = "CreateTaskFragment"
     lateinit var binding: FragmentCreateTaskBinding
-    val viewModel: TaskViewModel by viewModels()
-    val authViewModel: AuthViewModel by viewModels()
-    private var closeFunction: (() -> Unit)? = null
+    private val viewModel: TaskViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
+    var closeFunction: ((Boolean) -> Unit)? = null
+    var isSuccessAddTask: Boolean = false
 
 
     override fun onCreateView(
@@ -44,29 +45,61 @@ class CreateTaskFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        task?.let {
+            binding.taskEt.setText(it.description)
+        }
+
         binding.cancel.setOnClickListener {
             this.dismiss()
         }
 
         binding.done.setOnClickListener {
             if (validation()) {
-                viewModel.addTask(getTask())
+                if (task == null) {
+                    viewModel.addTask(getTask())
+                } else {
+                    task.description = binding.taskEt.text.toString()
+                    viewModel.updateTask(task)
+                }
             }
         }
         observer()
     }
 
-    private fun observer(){
+    private fun observer() {
         viewModel.addTask.observe(viewLifecycleOwner) { state ->
-            when(state){
+            when (state) {
                 is UiState.Loading -> {
                     binding.progressBar.show()
                 }
+
                 is UiState.Failure -> {
                     binding.progressBar.hide()
                     toast(state.error)
                 }
+
                 is UiState.Success -> {
+                    isSuccessAddTask = true
+                    binding.progressBar.hide()
+                    toast(state.data.second)
+                    this.dismiss()
+                }
+            }
+        }
+
+        viewModel.updateTask.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is UiState.Loading -> {
+                    binding.progressBar.show()
+                }
+
+                is UiState.Failure -> {
+                    binding.progressBar.hide()
+                    toast(state.error)
+                }
+
+                is UiState.Success -> {
+                    isSuccessAddTask = true
                     binding.progressBar.hide()
                     toast(state.data.second)
                     this.dismiss()
@@ -93,7 +126,7 @@ class CreateTaskFragment : BottomSheetDialogFragment() {
         ).apply { authViewModel.getSession { this.user_id = it?.id ?: "" } }
     }
 
-    fun setDismissListener(function: (() -> Unit)?) {
+    fun setDismissListener(function: ((Boolean) -> Unit)?) {
         closeFunction = function
     }
 
@@ -105,12 +138,14 @@ class CreateTaskFragment : BottomSheetDialogFragment() {
 
     private fun setupBottomSheet(dialogInterface: DialogInterface) {
         val bottomSheetDialog = dialogInterface as BottomSheetDialog
-        val bottomSheet = bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) ?: return
+        val bottomSheet =
+            bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?: return
         bottomSheet.setBackgroundColor(Color.TRANSPARENT)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        closeFunction?.invoke()
+        closeFunction?.invoke(isSuccessAddTask)
     }
 }
