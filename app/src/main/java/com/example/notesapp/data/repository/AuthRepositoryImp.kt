@@ -45,6 +45,8 @@ class AuthRepositoryImp(
                             is UiState.Failure -> {
                                 result.invoke(UiState.Failure(state.error))
                             }
+
+                            else -> {}
                         }
                     }
 
