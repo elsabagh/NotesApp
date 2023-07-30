@@ -19,4 +19,6 @@
     <color name="tab_selected">#FF000000</color>
     <color name="tab_unselected">#4D000000</color>
 
+    <color name="selected_color">#FF4081</color> <!-- Replace this with your desired color for the selected item -->
+
 </resources>

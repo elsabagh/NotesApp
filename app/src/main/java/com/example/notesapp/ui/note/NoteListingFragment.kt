@@ -76,6 +76,14 @@ class NoteListingFragment : Fragment() {
             findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment)
         }
 
+        binding.calendarView.visibility = View.GONE
+        binding.imgCalendar.setOnClickListener {
+            if (binding.calendarView.visibility == View.VISIBLE) {
+                binding.calendarView.visibility = View.GONE
+            } else {
+                binding.calendarView.visibility = View.VISIBLE
+            }
+        }
 
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             // Create a Date object from the selected date

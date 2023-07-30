@@ -14,6 +14,8 @@ import com.example.notesapp.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.tabs.TabLayout
+import java.util.Calendar
+import java.util.Date
 
 
 fun View.hide() {
@@ -106,4 +108,24 @@ fun TabLayout.Tab.onSelection(isSelected: Boolean = true) {
             )
         )
     }
+}
+
+fun Date.startOfDay(): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    return calendar.time
+}
+
+fun Date.endOfDay(): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar.set(Calendar.HOUR_OF_DAY, 23)
+    calendar.set(Calendar.MINUTE, 59)
+    calendar.set(Calendar.SECOND, 59)
+    calendar.set(Calendar.MILLISECOND, 999)
+    return calendar.time
 }

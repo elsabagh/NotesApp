@@ -7,6 +7,8 @@ import com.example.notesapp.util.FireStoreDocumentField
 import com.example.notesapp.util.FireStoreTAbles
 import com.example.notesapp.util.FirebaseStorageConstants.NOTE_IMAGES
 import com.example.notesapp.util.UiState
+import com.example.notesapp.util.endOfDay
+import com.example.notesapp.util.startOfDay
 import com.google.firebase.FirebaseException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -53,30 +55,6 @@ class NoteRepositoryImp(
                 )
             }
     }
-
-    fun Date.startOfDay(): Date {
-        val calendar = Calendar.getInstance()
-        calendar.time = this
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        return calendar.time
-    }
-
-    fun Date.endOfDay(): Date {
-        val calendar = Calendar.getInstance()
-        calendar.time = this
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
-        calendar.set(Calendar.MILLISECOND, 999)
-        return calendar.time
-    }
-
-
-
-
 
     override fun addNote(note: Note, result: (UiState<Pair<Note, String>>) -> Unit) {
         val document = database.collection(FireStoreTAbles.Note).document()
