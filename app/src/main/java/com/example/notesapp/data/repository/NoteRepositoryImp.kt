@@ -23,10 +23,18 @@ class NoteRepositoryImp(
     val storageReference: StorageReference
 ) : NoteRepository {
 
-    override fun getNotes(user: User?, result: (UiState<List<Note>>) -> Unit) {
-        database.collection(FireStoreTAbles.Note)
+    override fun getNotes(user: User?, date: Date?, result: (UiState<List<Note>>) -> Unit) {
+        var query = database.collection(FireStoreTAbles.Note)
             .whereEqualTo(FireStoreDocumentField.USER_ID, user?.id)
-            .orderBy(FireStoreDocumentField.DATE, Query.Direction.DESCENDING)
+
+        if (date != null) {
+            val startOfDay = date.startOfDay()
+            val endOfDay = date.endOfDay()
+            query = query.whereGreaterThanOrEqualTo(FireStoreDocumentField.DATE, startOfDay)
+                .whereLessThanOrEqualTo(FireStoreDocumentField.DATE, endOfDay)
+        }
+
+        query.orderBy(FireStoreDocumentField.DATE, Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener {
                 val notes = arrayListOf<Note>()
@@ -45,6 +53,30 @@ class NoteRepositoryImp(
                 )
             }
     }
+
+    fun Date.startOfDay(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = this
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.time
+    }
+
+    fun Date.endOfDay(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = this
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        return calendar.time
+    }
+
+
+
+
 
     override fun addNote(note: Note, result: (UiState<Pair<Note, String>>) -> Unit) {
         val document = database.collection(FireStoreTAbles.Note).document()

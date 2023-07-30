@@ -12,6 +12,8 @@ import com.example.notesapp.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,9 +42,9 @@ class NoteViewModel @Inject constructor(
         get() = _deleteImage
 
 
-    fun getNotes(user: User?) {
+    fun getNotes(user: User?, date: Date? = null) {
         _notes.value = UiState.Loading
-        repository.getNotes(user) { _notes.value = it }
+        repository.getNotes(user, date) { _notes.value = it }
     }
 
     fun addNote(note: Note) {
@@ -60,10 +62,10 @@ class NoteViewModel @Inject constructor(
         repository.deleteNote(note) { _deleteNote.value = it }
     }
 
-    fun onUploadFile(fileUris: List<Uri>, onResult: (UiState<List<Uri>>) -> Unit){
+    fun onUploadFile(fileUris: List<Uri>, onResult: (UiState<List<Uri>>) -> Unit) {
         onResult.invoke(UiState.Loading)
         viewModelScope.launch {
-            repository.uploadFile(fileUris,onResult)
+            repository.uploadFile(fileUris, onResult)
         }
     }
 

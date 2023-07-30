@@ -17,6 +17,8 @@ import com.example.notesapp.util.hide
 import com.example.notesapp.util.show
 import com.example.notesapp.util.toast
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Calendar
+import java.util.Date
 
 private const val ARG_PARAM1 = "param1"
 
@@ -27,6 +29,7 @@ class NoteListingFragment : Fragment() {
     private val viewModel: NoteViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
     var param1: String? = null
+    private var selectedDate: Date? = null
 
     private val adapter by lazy {
         NoteListingAdapter(
@@ -73,8 +76,26 @@ class NoteListingFragment : Fragment() {
             findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment)
         }
 
-        authViewModel.getSession {
-            viewModel.getNotes(it)
+
+        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            // Create a Date object from the selected date
+            val calendar = Calendar.getInstance()
+            calendar.set(year, month, dayOfMonth)
+            val selectedDate = calendar.time
+
+            // Fetch notes for the selected date
+            authViewModel.getSession {
+                viewModel.getNotes(it, selectedDate)
+            }
+        }
+
+        // If the selectedDate is null, it means it's the first time opening the app.
+        // In that case, show notes for the current day by default.
+        if (selectedDate == null) {
+            val currentDate = Calendar.getInstance().time
+            authViewModel.getSession {
+                viewModel.getNotes(it, currentDate)
+            }
         }
         observer()
     }
@@ -98,7 +119,6 @@ class NoteListingFragment : Fragment() {
             }
         }
     }
-
     companion object {
         const val TAG: String = "NoteListingFragment"
         @JvmStatic
