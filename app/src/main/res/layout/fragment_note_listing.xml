@@ -17,6 +17,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/btn_prev_day"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="previous_day"
+        android:src="@drawable/left_arrow"
+        app:layout_constraintEnd_toStartOf="@+id/img_calendar"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btn_next_day"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="next_day"
+        android:src="@drawable/right_arrow"
+        app:layout_constraintStart_toEndOf="@+id/img_calendar"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Add text view to display the current date -->
+    <TextView
+        android:id="@+id/tv_current_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/SubTitleStyle"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_prev_day" />
+
     <CalendarView
         android:id="@+id/calendarView"
         android:layout_width="match_parent"
@@ -24,7 +56,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_calendar" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_current_date" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

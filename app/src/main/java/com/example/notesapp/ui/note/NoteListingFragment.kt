@@ -17,6 +17,7 @@ import com.example.notesapp.util.hide
 import com.example.notesapp.util.show
 import com.example.notesapp.util.toast
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 
@@ -30,6 +31,7 @@ class NoteListingFragment : Fragment() {
     private val authViewModel: AuthViewModel by viewModels()
     var param1: String? = null
     private var selectedDate: Date? = null
+    private val dateFormat = SimpleDateFormat("MMMM d")
 
     private val adapter by lazy {
         NoteListingAdapter(
@@ -81,6 +83,10 @@ class NoteListingFragment : Fragment() {
             if (binding.calendarView.visibility == View.VISIBLE) {
                 binding.calendarView.visibility = View.GONE
             } else {
+                // Set the calendar to the selectedDate (current date)
+                val calendar = Calendar.getInstance()
+                calendar.time = selectedDate ?: Date()
+                binding.calendarView.date = calendar.timeInMillis
                 binding.calendarView.visibility = View.VISIBLE
             }
         }
@@ -90,6 +96,10 @@ class NoteListingFragment : Fragment() {
             val calendar = Calendar.getInstance()
             calendar.set(year, month, dayOfMonth)
             val selectedDate = calendar.time
+
+            // Update the selectedDate and the current date text
+            this.selectedDate = selectedDate
+            updateCurrentDateText(selectedDate)
 
             // Fetch notes for the selected date
             authViewModel.getSession {
@@ -101,12 +111,43 @@ class NoteListingFragment : Fragment() {
         // In that case, show notes for the current day by default.
         if (selectedDate == null) {
             val currentDate = Calendar.getInstance().time
+            selectedDate = currentDate
+            updateCurrentDateText(currentDate)
             authViewModel.getSession {
                 viewModel.getNotes(it, currentDate)
             }
         }
         observer()
+
+        binding.btnPrevDay.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            calendar.time = selectedDate ?: Date()
+            calendar.add(Calendar.DAY_OF_MONTH, -1)
+            selectedDate = calendar.time
+            updateCurrentDateText(selectedDate)
+            binding.calendarView.date = selectedDate?.time ?: System.currentTimeMillis()
+            authViewModel.getSession {
+                viewModel.getNotes(it, selectedDate)
+            }
+        }
+
+        binding.btnNextDay.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            calendar.time = selectedDate ?: Date()
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+            selectedDate = calendar.time
+            updateCurrentDateText(selectedDate)
+            binding.calendarView.date = selectedDate?.time ?: System.currentTimeMillis()
+            authViewModel.getSession {
+                viewModel.getNotes(it, selectedDate)
+            }
+        }
     }
+
+    private fun updateCurrentDateText(date: Date?) {
+        binding.tvCurrentDate.text = dateFormat.format(date ?: Date())
+    }
+
 
     private fun observer() {
         viewModel.note.observe(viewLifecycleOwner) { state ->
